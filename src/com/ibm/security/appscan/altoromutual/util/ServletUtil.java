@@ -33,8 +33,9 @@ import javax.xml.parsers.DocumentBuilder;
  import org.apache.commons.lang.StringEscapeUtils;
  import org.w3c.dom.Document;
  import org.w3c.dom.NodeList;
- 
- import src.com.ibm.security.appscan.altoromutual.model.Account;
+import org.xml.sax.InputSource;
+
+import src.com.ibm.security.appscan.altoromutual.model.Account;
  import src.com.ibm.security.appscan.altoromutual.model.Feedback;
  import src.com.ibm.security.appscan.altoromutual.model.User;
  
@@ -75,17 +76,19 @@ import javax.xml.parsers.DocumentBuilder;
 			 // Introduced XXE vulnerability in XML parsing here
 			 // This securily sets up the parser and disables external entities.
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); //this disallows doctype  delc
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false); //this disallows external ents
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);   //this disallows external perams
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); //this disallows loading external dtds
-            factory.setXIncludeAware(false);
- 
-			 DocumentBuilder builder = factory.newDocumentBuilder();
-			 document = builder.parse(file); // Vulnerable code
- 
+			// Disable all potential XXE-related features explicitly
+			factory.setNamespaceAware(true);
+			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); // Secure processing
+			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Disallow DOCTYPE declaration
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // Disallow external general entities
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // Disallow external parameter entities
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); // Disallow loading external DTDs
+			factory.setXIncludeAware(false); // Ensure XInclude is disabled
+
+			// Build and parse the document securely
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			builder.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader(""))); // Prevent external DTD resolution
+			document = builder.parse(file); // Secure XML parsing
 			 // Root node
 			 NodeList nodes = document.getElementsByTagName("news");
  
