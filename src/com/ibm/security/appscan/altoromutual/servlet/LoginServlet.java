@@ -25,11 +25,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.net.ssl.*;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 import com.ibm.security.appscan.Log4AltoroJ;
 import com.ibm.security.appscan.altoromutual.util.DBUtil;
@@ -58,8 +53,6 @@ public class LoginServlet extends HttpServlet {
 		try {
 			HttpSession session = request.getSession(false);
 			session.removeAttribute(ServletUtil.SESSION_ATTR_USER);
-			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-			connection.setSSLSocketFactory(new TLS12SocketFactory());
 		} catch (Exception e){
 			// do nothing
 		} finally {
@@ -110,57 +103,5 @@ public class LoginServlet extends HttpServlet {
 		
 		return;
 	}
-	 public class TLS12SocketFactory extends SSLSocketFactory {
-      private final SSLSocketFactory delegate;
-
-      public TLS12SocketFactory() throws Exception {
-          SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-          sslContext.init(null, null, null);
-          delegate = sslContext.getSocketFactory();
-      }
-
-      @Override
-      public String[] getDefaultCipherSuites() {
-          return delegate.getDefaultCipherSuites();
-      }
-
-      @Override
-      public String[] getSupportedCipherSuites() {
-          return delegate.getSupportedCipherSuites();
-      }
-
-      @Override
-      public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-          return enableTLS12OnSocket(delegate.createSocket(s, host, port, autoClose));
-      }
-
-      @Override
-      public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-          return enableTLS12OnSocket(delegate.createSocket(host, port));
-      }
-
-      @Override
-      public Socket createSocket(InetAddress host, int port) throws IOException {
-          return enableTLS12OnSocket(delegate.createSocket(host, port));
-      }
-
-      @Override
-      public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
-          return enableTLS12OnSocket(delegate.createSocket(host, port, localHost, localPort));
-      }
-
-      @Override
-      public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-          return enableTLS12OnSocket(delegate.createSocket(address, port, localAddress, localPort));
-      }
-
-      private Socket enableTLS12OnSocket(Socket socket) {
-          if (socket instanceof SSLSocket) {
-              SSLSocket sslSocket = (SSLSocket) socket;
-              sslSocket.setEnabledProtocols(new String[]{"TLSv1.2"});
-          }
-          return socket;
-      }
-  }
 
 }
