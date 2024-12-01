@@ -1,6 +1,7 @@
 package com.ibm.security.appscan.altoromutual.listener;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -18,7 +19,9 @@ public class StartupListener implements ServletContextListener {
 		DBUtil.isValidUser("bogus", "user");
 		ServletUtil.initializeRestAPI(sce.getServletContext());
 		System.setProperty("https.protocols", "TLSv1.2");
-		System.SSLContext.getInstance("TLSv1.1");
+		SSLContext sslContext = SSLContext.getInstance("SSLv3");
+        sslContext.init(null, null, null);
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 		System.out.println("AltoroJ initialized");
 		} catch (Exception e) {
 			Log4AltoroJ.getInstance().logError("Error during AltoroJ initialization:" + e.getMessage());
