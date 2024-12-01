@@ -1,3 +1,4 @@
+
 /**
  * This application is for demonstration use only. It contains known application security
  * vulnerabilities that were created expressly for demonstrating the functionality of
@@ -26,7 +27,8 @@
  import javax.servlet.http.Cookie;
  import javax.servlet.http.HttpServletRequest;
  import javax.servlet.http.HttpSession;
- import javax.xml.parsers.DocumentBuilder;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
  import javax.xml.parsers.DocumentBuilderFactory;
  import org.apache.commons.lang.StringEscapeUtils;
  import org.w3c.dom.Document;
@@ -71,12 +73,15 @@
 		 Document document;
 		 try {
 			 // Introduced XXE vulnerability in XML parsing here
-			 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			 factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Allow DOCTYPE
-			 factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // Allow external entities
-			 factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // Allow parameter entities
-			 factory.setXIncludeAware(false);
-		     factory.setExpandEntityReferences(false);
+			 // This securily sets up the parser and disables external entities.
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); //this disallows doctype  delc
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false); //this disallows external ents
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);   //this disallows external perams
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); //this disallows loading external dtds
+            factory.setXIncludeAware(false);
  
 			 DocumentBuilder builder = factory.newDocumentBuilder();
 			 document = builder.parse(file); // Vulnerable code
