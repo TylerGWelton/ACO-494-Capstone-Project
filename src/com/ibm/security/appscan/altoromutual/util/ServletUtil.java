@@ -1,3 +1,4 @@
+
 /**
  * This application is for demonstration use only. It contains known application security
  * vulnerabilities that were created expressly for demonstrating the functionality of
@@ -26,11 +27,18 @@
  import javax.servlet.http.Cookie;
  import javax.servlet.http.HttpServletRequest;
  import javax.servlet.http.HttpSession;
- import javax.xml.parsers.DocumentBuilder;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
  import javax.xml.parsers.DocumentBuilderFactory;
  import org.apache.commons.lang.StringEscapeUtils;
  import org.w3c.dom.Document;
  import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException; //added for fixing XXE vulnerability
+
+import src.com.ibm.security.appscan.altoromutual.model.Account;
+ import src.com.ibm.security.appscan.altoromutual.model.Feedback;
+ import src.com.ibm.security.appscan.altoromutual.model.User;
  
  /**
   * This is a utility class used by servlet classes and JSP pages
@@ -67,14 +75,25 @@
 		 Document document;
 		 try {
 			 // Introduced XXE vulnerability in XML parsing here
-			 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			 factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false); // Allow DOCTYPE
-			 factory.setFeature("http://xml.org/sax/features/external-general-entities", true); // Allow external entities
-			 factory.setFeature("http://xml.org/sax/features/external-parameter-entities", true); // Allow parameter entities
- 
-			 DocumentBuilder builder = factory.newDocumentBuilder();
-			 document = builder.parse(file); // Vulnerable code
- 
+			 // This securily sets up the parser and disables external entities.
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			// Disable all potential XXE-related features explicitly
+			factory.setNamespaceAware(true);
+			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); // Secure processing
+			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Disallow DOCTYPE declaration
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // Disallow external general entities
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // Disallow external parameter entities
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); // Disallow loading external DTDs
+			factory.setXIncludeAware(false); // Ensure XInclude is disabled
+
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			builder.setEntityResolver(new org.xml.sax.EntityResolver() {
+				@Override
+				public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
+					return new InputSource(new StringReader(""));
+				}
+			});
+			document = builder.parse(file); // Secure XML parsing
 			 // Root node
 			 NodeList nodes = document.getElementsByTagName("news");
  
