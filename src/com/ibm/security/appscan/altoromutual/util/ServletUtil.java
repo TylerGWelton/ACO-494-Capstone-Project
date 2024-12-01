@@ -32,6 +32,10 @@
  import org.w3c.dom.Document;
  import org.w3c.dom.NodeList;
  
+ import src.com.ibm.security.appscan.altoromutual.model.Account;
+ import src.com.ibm.security.appscan.altoromutual.model.Feedback;
+ import src.com.ibm.security.appscan.altoromutual.model.User;
+ 
  /**
   * This is a utility class used by servlet classes and JSP pages
   *
@@ -68,9 +72,11 @@
 		 try {
 			 // Introduced XXE vulnerability in XML parsing here
 			 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			 factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false); // Allow DOCTYPE
-			 factory.setFeature("http://xml.org/sax/features/external-general-entities", true); // Allow external entities
-			 factory.setFeature("http://xml.org/sax/features/external-parameter-entities", true); // Allow parameter entities
+			 factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Allow DOCTYPE
+			 factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // Allow external entities
+			 factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // Allow parameter entities
+			 factory.setXIncludeAware(false);
+		     factory.setExpandEntityReferences(false);
  
 			 DocumentBuilder builder = factory.newDocumentBuilder();
 			 document = builder.parse(file); // Vulnerable code
