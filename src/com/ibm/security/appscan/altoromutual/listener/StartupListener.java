@@ -16,6 +16,7 @@ public class StartupListener implements ServletContextListener {
 		ServletUtil.initializeLogFile(sce.getServletContext());
 		DBUtil.isValidUser("bogus", "user");
 		ServletUtil.initializeRestAPI(sce.getServletContext());
+		System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 		System.out.println("AltoroJ initialized");
 		} catch (Exception e) {
 			Log4AltoroJ.getInstance().logError("Error during AltoroJ initialization:" + e.getMessage());
