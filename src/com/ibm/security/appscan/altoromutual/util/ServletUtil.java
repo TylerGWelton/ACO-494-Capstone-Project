@@ -76,10 +76,8 @@ public class ServletUtil {
 			factory.setNamespaceAware(true);
 			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // Disallow external
-																								// entities
-			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // Disallow parameter
-																									// entities
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // Disallow external entities
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // Disallow parameter entities
 
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			document = builder.parse(file); // Vulnerable code
