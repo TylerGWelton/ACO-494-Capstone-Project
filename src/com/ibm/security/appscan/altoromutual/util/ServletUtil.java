@@ -72,12 +72,21 @@ public class ServletUtil {
 		Document document;
 		try {
 			// This securily sets up the parser and disables external entities.
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newDefaultInstance();
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setNamespaceAware(true);
 			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // Disallow external
-			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // Disallow parameter
+			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // this disallows doctype
+																								// delc
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false); // this disallows
+																								// external ents
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); // this disallows
+																									// external perams
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); // this
+																											// disallows
+																											// loading
+																											// external
+																											// dtds
+			factory.setXIncludeAware(false);
 
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			document = builder.parse(file); // Vulnerable code
