@@ -34,6 +34,7 @@ import javax.xml.parsers.DocumentBuilder;
  import org.w3c.dom.Document;
  import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException; //added for fixing XXE vulnerability
 
 import src.com.ibm.security.appscan.altoromutual.model.Account;
  import src.com.ibm.security.appscan.altoromutual.model.Feedback;
@@ -85,9 +86,13 @@ import src.com.ibm.security.appscan.altoromutual.model.Account;
 			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); // Disallow loading external DTDs
 			factory.setXIncludeAware(false); // Ensure XInclude is disabled
 
-			// Build and parse the document securely
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			builder.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader(""))); // Prevent external DTD resolution
+			builder.setEntityResolver(new org.xml.sax.EntityResolver() {
+				@Override
+				public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
+					return new InputSource(new StringReader(""));
+				}
+			});
 			document = builder.parse(file); // Secure XML parsing
 			 // Root node
 			 NodeList nodes = document.getElementsByTagName("news");
