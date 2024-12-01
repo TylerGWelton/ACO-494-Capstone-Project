@@ -18,10 +18,7 @@ public class StartupListener implements ServletContextListener {
 		ServletUtil.initializeLogFile(sce.getServletContext());
 		DBUtil.isValidUser("bogus", "user");
 		ServletUtil.initializeRestAPI(sce.getServletContext());
-		System.setProperty("https.protocols", "TLSv1.2");
-		SSLContext sslContext = SSLContext.getInstance("SSLv3");
-        sslContext.init(null, null, null);
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+		sslSocket.setEnabledProtocols(new String[] { "TLSv1.3"});
 		System.out.println("AltoroJ initialized");
 		} catch (Exception e) {
 			Log4AltoroJ.getInstance().logError("Error during AltoroJ initialization:" + e.getMessage());
